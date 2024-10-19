@@ -40,7 +40,7 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
             flex: 1;
-            max-width: 48%;
+            width: 100%;
             transition: box-shadow 0.3s ease;
         }
 
@@ -77,6 +77,20 @@
             height: 50px;
         }
 
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .profile-section img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #ccc;
+        }
+
         .checkboxes {
             display: flex;
             flex-wrap: wrap;
@@ -89,7 +103,8 @@
 
         .add-button,
         .export-button,
-        .remove-button {
+        .remove-button,
+        .import-button {
             background-color: #ffcc00;
             border: none;
             padding: 10px 20px;
@@ -102,7 +117,8 @@
 
         .add-button:hover,
         .export-button:hover,
-        .remove-button:hover {
+        .remove-button:hover,
+        .import-button:hover {
             background-color: #ff9900;
         }
 
@@ -147,10 +163,48 @@
             top: 10px;
             right: 10px;
         }
+
+        /* Estilos para os resultados de Defesa e Aura */
+        .result-display {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        /* Estilização do botão de importação */
+        .import-button-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .import-button-large {
+            background-color: #ffcc00;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .import-button-large:hover {
+            background-color: #ff9900;
+        }
     </style>
 </head>
 
 <body>
+
+    <!-- Botão grande para Importar Dados -->
+    <div class="import-button-container">
+        <button class="import-button-large" onclick="importData()">Importar Dados</button>
+    </div>
 
     <div class="container">
         <!-- Formulário do Personagem -->
@@ -158,11 +212,17 @@
             <h1>Personagem</h1>
             <form id="personagemForm">
 
-                <!-- Informações Gerais -->
+                <!-- Seção de Nome e Imagem -->
                 <div class="form-section">
                     <h2>Informações Gerais</h2>
-                    <label for="nome">Nome:</label>
-                    <input type="text" id="nome" name="nome">
+                    <div class="profile-section">
+                        <img id="profileImage" src="default-avatar.png" alt="Imagem do personagem">
+                        <div>
+                            <label for="nome">Nome:</label>
+                            <input type="text" id="nome" name="nome">
+                            <input type="file" id="imagemPerfil" accept="image/*" onchange="loadProfileImage(event)">
+                        </div>
+                    </div>
 
                     <label for="arquetipo">Arquétipo:</label>
                     <input type="text" id="arquetipo" name="arquetipo">
@@ -177,29 +237,35 @@
                     <textarea id="trilhas" name="trilhas" class="large"></textarea>
                 </div>
 
-                <!-- Atributos -->
+                <!-- Atributos com distribuição completa -->
+                <div class="form-section grid-layout">
+                    <div>
+                        <label for="ofensiva">Ofensiva:</label>
+                        <input type="number" id="ofensiva" name="ofensiva" oninput="calculateStats()">
+
+                        <label for="habilidade">Habilidade:</label>
+                        <input type="number" id="habilidade" name="habilidade" oninput="calculateStats()">
+                    </div>
+                    <div>
+                        <label for="poder">Poder:</label>
+                        <input type="number" id="poder" name="poder" oninput="calculateStats()">
+
+                        <label for="astucia">Astúcia:</label>
+                        <input type="number" id="astucia" name="astucia" oninput="calculateStats()">
+                    </div>
+
+                    <!-- Exibir resultados sem caixa de texto -->
+                    <div class="result-display">
+                        <p>Defesa: <span id="defesa">5</span></p>
+                    </div>
+
+                    <div class="result-display">
+                        <p>Aura: <span id="aura">5</span></p>
+                    </div>
+                </div>
+
+                <!-- Cansaço e C.C -->
                 <div class="form-section">
-                    <h2>Atributos</h2>
-                    <label for="ofensiva">Ofensiva:</label>
-                    <input type="number" id="ofensiva" name="ofensiva" oninput="calculateStats()">
-
-                    <label for="habilidade">Habilidade:</label>
-                    <input type="number" id="habilidade" name="habilidade" oninput="calculateStats()">
-
-                    <label for="poder">Poder:</label>
-                    <input type="number" id="poder" name="poder" oninput="calculateStats()">
-
-                    <label for="astucia">Astúcia:</label>
-                    <input type="number" id="astucia" name="astucia" oninput="calculateStats()">
-
-                    <!-- Cálculos automáticos -->
-                    <label for="defesa">Defesa:</label>
-                    <input type="text" id="defesa" name="defesa" readonly>
-
-                    <label for="aura">Aura:</label>
-                    <input type="text" id="aura" name="aura" readonly>
-
-                    <!-- Cansaço e C.C -->
                     <label for="cansaco">Cansaço (ex: 10/10):</label>
                     <input type="text" id="cansaco" name="cansaco">
 
@@ -257,7 +323,6 @@
                     <h2>Formas de Ação</h2>
                     <textarea id="acao" name="acao" class="small"></textarea>
                 </div>
-
             </form>
         </div>
 
@@ -279,6 +344,7 @@
             pokemonCount++;
             const pokemonSection = document.createElement('div');
             pokemonSection.classList.add('pokemon-section');
+            pokemonSection.id = `pokemon_${pokemonCount}`; // Adiciona o id único para cada Pokémon
             pokemonSection.innerHTML = `
             <h2>Pokémon ${pokemonCount}</h2>
             <button class="remove-button" onclick="removePokemon(${pokemonCount})">Excluir</button>
@@ -346,10 +412,22 @@
 
         // Função para remover Pokémon
         function removePokemon(id) {
-            const pokemonSection = document.querySelector(`.pokemon-section:nth-child(${id})`);
+            const pokemonSection = document.getElementById(`pokemon_${id}`);
             if (pokemonSection) {
-                pokemonContainer.removeChild(pokemonSection);
+                pokemonSection.remove();
+                recalculatePokemonIds();
             }
+        }
+
+        // Recalcula os IDs dos Pokémons e seus números após exclusão
+        function recalculatePokemonIds() {
+            const pokemonSections = document.querySelectorAll('.pokemon-section');
+            pokemonSections.forEach((section, index) => {
+                section.id = `pokemon_${index + 1}`;
+                section.querySelector('h2').textContent = `Pokémon ${index + 1}`;
+                section.querySelector('.remove-button').setAttribute('onclick', `removePokemon(${index + 1})`);
+            });
+            pokemonCount = pokemonSections.length;
         }
 
         // Função para calcular automaticamente os atributos de Defesa e Aura
@@ -362,14 +440,26 @@
             const defesa = 5 + ofensiva + habilidade;
             const aura = 5 + poder + astucia;
 
-            document.getElementById('defesa').value = defesa;
-            document.getElementById('aura').value = aura;
+            document.getElementById('defesa').innerText = defesa;
+            document.getElementById('aura').innerText = aura;
+        }
+
+        // Função para carregar a imagem do perfil
+        function loadProfileImage(event) {
+            const image = document.getElementById('profileImage');
+            image.src = URL.createObjectURL(event.target.files[0]);
         }
 
         // Função para exportar os dados como um arquivo .txt
         function exportData() {
             const personagemForm = new FormData(document.getElementById('personagemForm'));
             const personagemData = Object.fromEntries(personagemForm.entries());
+
+            // Exportar também as condições do personagem
+            const condicoesPersonagem = {};
+            document.querySelectorAll('.checkboxes input[name="condicoes"]').forEach(checkbox => {
+                condicoesPersonagem[checkbox.id] = checkbox.checked;
+            });
 
             const pokemons = [];
             for (let i = 1; i <= pokemonCount; i++) {
@@ -410,6 +500,7 @@
 
             const data = {
                 personagem: personagemData,
+                condicoesPersonagem: condicoesPersonagem,
                 pokemons: pokemons
             };
 
@@ -417,6 +508,11 @@
             let textContent = 'Personagem:\n';
             for (const [key, value] of Object.entries(personagemData)) {
                 textContent += `${key}: ${value}\n`;
+            }
+
+            textContent += '\nCondições Personagem:\n';
+            for (const [condKey, condValue] of Object.entries(condicoesPersonagem)) {
+                textContent += `${condKey}: ${condValue}\n`;
             }
 
             textContent += '\nPokémons:\n';
@@ -441,6 +537,99 @@
             link.click();
         }
 
+        // Função para importar os dados de um arquivo .txt
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.txt';
+
+            input.onchange = (event) => {
+                const file = event.target.files[0];
+                const reader = new FileReader();
+
+                reader.onload = (e) => {
+                    const content = e.target.result;
+                    const lines = content.split('\n');
+                    pokemonContainer.innerHTML = ''; // Limpa a lista de pokemons
+                    pokemonCount = 0; // Reinicia o contador de pokémons
+                    let currentSection = null; // Para controle da seção atual (personagem, condicoes, pokemon)
+                    let currentPokemonIndex = 0; // Para associar os dados ao pokémon correto
+
+                    lines.forEach(line => {
+                        line = line.trim(); // Remove espaços em branco no início e fim
+
+                        // Detecta mudança de seção
+                        if (line.startsWith('Personagem:')) {
+                            currentSection = 'personagem';
+                        } else if (line.startsWith('Condições Personagem:')) {
+                            currentSection = 'condicoesPersonagem';
+                        } else if (line.startsWith('Pokémon')) {
+                            currentSection = 'pokemon';
+                            addPokemon(); // Adiciona um novo Pokémon
+                            currentPokemonIndex = pokemonCount; // Atualiza o índice do pokémon atual
+                        }
+
+                        // Lida com dados do Personagem
+                        if (currentSection === 'personagem') {
+                            const data = line.split(':');
+                            if (data.length === 2) {
+                                const key = data[0].trim().toLowerCase();
+                                const value = data[1].trim();
+                                const inputField = document.getElementById(key);
+                                if (inputField) {
+                                    inputField.value = value;
+                                }
+                            }
+                        }
+
+                        // Lida com as condições do Personagem
+                        else if (currentSection === 'condicoesPersonagem') {
+                            const data = line.split(':');
+                            if (data.length === 2) {
+                                const condKey = data[0].trim();
+                                const condValue = data[1].trim() === 'true';
+                                const checkbox = document.getElementById(condKey);
+                                if (checkbox) {
+                                    checkbox.checked = condValue;
+                                }
+                            }
+                        }
+
+                        // Lida com os dados do Pokémon
+                        else if (currentSection === 'pokemon') {
+                            const data = line.split(':');
+                            if (data.length === 2) {
+                                const key = data[0].trim().toLowerCase();
+                                const value = data[1].trim();
+                                const inputField = document.getElementById(`${key}_${currentPokemonIndex}`);
+                                if (inputField) {
+                                    inputField.value = value;
+                                }
+                            }
+                        }
+
+                        // Lida com as condições do Pokémon
+                        else if (line.startsWith('Condições:')) {
+                            currentSection = 'condicoesPokemon';
+                        } else if (currentSection === 'condicoesPokemon') {
+                            const condData = line.split(':');
+                            if (condData.length === 2) {
+                                const condKey = condData[0].trim();
+                                const condValue = condData[1].trim() === 'true';
+                                const checkbox = document.getElementById(`${condKey}_${currentPokemonIndex}`);
+                                if (checkbox) {
+                                    checkbox.checked = condValue;
+                                }
+                            }
+                        }
+                    });
+                };
+
+                reader.readAsText(file);
+            };
+
+            input.click(); // Abre o seletor de arquivos
+        }
     </script>
 
 </body>
