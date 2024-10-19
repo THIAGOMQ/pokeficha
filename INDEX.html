@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criação de Personagem e Pokémon</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+            margin: 0;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .form-section {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            flex: 1;
+            max-width: 48%;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .form-section:hover {
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        h1,
+        h2 {
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        textarea.large {
+            height: 150px;
+        }
+
+        textarea.small {
+            height: 50px;
+        }
+
+        .checkboxes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .checkboxes div {
+            width: 48%;
+        }
+
+        .add-button,
+        .export-button,
+        .remove-button {
+            background-color: #ffcc00;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .add-button:hover,
+        .export-button:hover,
+        .remove-button:hover {
+            background-color: #ff9900;
+        }
+
+        .pokemon-section {
+            background-color: #f8f9fa;
+            border: 2px solid #f1c40f;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .pokemon-section h2 {
+            background-color: #ffcc00;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .hisatsus,
+        .abilities {
+            display: flex;
+            gap: 10px;
+        }
+
+        .abilities textarea {
+            width: 48%;
+        }
+
+        @media (max-width: 768px) {
+            .form-section {
+                max-width: 100%;
+                flex: none;
+            }
+
+            .checkboxes div {
+                width: 100%;
+            }
+        }
+
+        .remove-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <!-- Formulário do Personagem -->
+        <div class="form-section">
+            <h1>Personagem</h1>
+            <form id="personagemForm">
+
+                <!-- Informações Gerais -->
+                <div class="form-section">
+                    <h2>Informações Gerais</h2>
+                    <label for="nome">Nome:</label>
+                    <input type="text" id="nome" name="nome">
+
+                    <label for="arquetipo">Arquétipo:</label>
+                    <input type="text" id="arquetipo" name="arquetipo">
+
+                    <label for="escala">Escala de Poder:</label>
+                    <input type="text" id="escala" name="escala">
+
+                    <label for="dharma">Dharma:</label>
+                    <input type="text" id="dharma" name="dharma">
+
+                    <label for="trilhas">Trilhas:</label>
+                    <textarea id="trilhas" name="trilhas" class="large"></textarea>
+                </div>
+
+                <!-- Atributos -->
+                <div class="form-section">
+                    <h2>Atributos</h2>
+                    <label for="ofensiva">Ofensiva:</label>
+                    <input type="number" id="ofensiva" name="ofensiva" oninput="calculateStats()">
+
+                    <label for="habilidade">Habilidade:</label>
+                    <input type="number" id="habilidade" name="habilidade" oninput="calculateStats()">
+
+                    <label for="poder">Poder:</label>
+                    <input type="number" id="poder" name="poder" oninput="calculateStats()">
+
+                    <label for="astucia">Astúcia:</label>
+                    <input type="number" id="astucia" name="astucia" oninput="calculateStats()">
+
+                    <!-- Cálculos automáticos -->
+                    <label for="defesa">Defesa:</label>
+                    <input type="text" id="defesa" name="defesa" readonly>
+
+                    <label for="aura">Aura:</label>
+                    <input type="text" id="aura" name="aura" readonly>
+
+                    <!-- Cansaço e C.C -->
+                    <label for="cansaco">Cansaço (ex: 10/10):</label>
+                    <input type="text" id="cansaco" name="cansaco">
+
+                    <label for="cc">C.C. (Capacidade de Canalização):</label>
+                    <input type="text" id="cc" name="cc">
+                </div>
+
+                <!-- Condições -->
+                <div class="form-section">
+                    <h2>Condições</h2>
+                    <div class="checkboxes">
+                        <div><input type="checkbox" id="acurado" name="condicoes"> Acurado</div>
+                        <div><input type="checkbox" id="amaldiçoado" name="condicoes"> Amaldiçoado</div>
+                        <div><input type="checkbox" id="bloqueioRecuperacao" name="condicoes"> Bloqueio de Recuperação
+                        </div>
+                        <div><input type="checkbox" id="cegar" name="condicoes"> Cegar</div>
+                        <div><input type="checkbox" id="condenacao" name="condicoes"> Condenação</div>
+                        <div><input type="checkbox" id="confusao" name="condicoes"> Confusão</div>
+                        <div><input type="checkbox" id="congelado" name="condicoes"> Congelado</div>
+                        <div><input type="checkbox" id="danoContinuo" name="condicoes"> Dano Contínuo</div>
+                        <div><input type="checkbox" id="debilitado" name="condicoes"> Debilitado</div>
+                        <div><input type="checkbox" id="encorajado" name="condicoes"> Encorajado</div>
+                        <div><input type="checkbox" id="furioso" name="condicoes"> Furioso</div>
+                        <div><input type="checkbox" id="lento" name="condicoes"> Lento</div>
+                        <div><input type="checkbox" id="provocar" name="condicoes"> Provocar</div>
+                        <div><input type="checkbox" id="silenciado" name="condicoes"> Silenciado</div>
+                        <div><input type="checkbox" id="surdo" name="condicoes"> Surdo</div>
+                        <div><input type="checkbox" id="sono" name="condicoes"> Sono</div>
+                    </div>
+                </div>
+
+                <!-- Hisatsu -->
+                <div class="form-section">
+                    <h2>Hisatsu</h2>
+                    <textarea id="hisatsu" name="hisatsu" class="large"></textarea>
+                </div>
+
+                <!-- Itens e Equipamentos -->
+                <div class="form-section">
+                    <h2>Itens e Equipamentos</h2>
+                    <textarea id="itens" name="itens" class="small"></textarea>
+                </div>
+
+                <!-- Defeitos -->
+                <div class="form-section">
+                    <h2>Defeitos</h2>
+                    <textarea id="defeitos" name="defeitos" class="large"></textarea>
+                </div>
+
+                <!-- Dados de Energia e Formas de Ação -->
+                <div class="form-section">
+                    <h2>Dados de Energia</h2>
+                    <textarea id="energia" name="energia" class="small"></textarea>
+
+                    <h2>Formas de Ação</h2>
+                    <textarea id="acao" name="acao" class="small"></textarea>
+                </div>
+
+            </form>
+        </div>
+
+        <!-- Coluna para Pokémon -->
+        <div class="form-section">
+            <h1>Pokémons</h1>
+            <div id="pokemonContainer"></div>
+
+            <button class="add-button" onclick="addPokemon()">Adicionar Pokémon</button>
+            <button class="export-button" onclick="exportData()">Exportar Dados</button>
+        </div>
+    </div>
+
+    <script>
+        let pokemonCount = 0;
+        const pokemonContainer = document.getElementById('pokemonContainer');
+
+        function addPokemon() {
+            pokemonCount++;
+            const pokemonSection = document.createElement('div');
+            pokemonSection.classList.add('pokemon-section');
+            pokemonSection.innerHTML = `
+            <h2>Pokémon ${pokemonCount}</h2>
+            <button class="remove-button" onclick="removePokemon(${pokemonCount})">Excluir</button>
+            <label for="pokemonNome_${pokemonCount}">Nome do Pokémon:</label>
+            <input type="text" id="pokemonNome_${pokemonCount}" name="pokemonNome">
+
+            <label for="especie_${pokemonCount}">Espécie:</label>
+            <input type="text" id="especie_${pokemonCount}" name="especie">
+
+            <label for="escala_${pokemonCount}">Escala de Poder:</label>
+            <input type="text" id="escala_${pokemonCount}" name="escala">
+
+            <label for="shinka_${pokemonCount}">Shinka (XP):</label>
+            <input type="text" id="shinka_${pokemonCount}" name="shinka">
+
+            <label for="cansaco_${pokemonCount}">Cansaço:</label>
+            <input type="text" id="cansaco_${pokemonCount}" name="cansaco">
+
+            <label for="tipoGenero_${pokemonCount}">Tipo/Gênero:</label>
+            <input type="text" id="tipoGenero_${pokemonCount}" name="tipoGenero">
+
+            <label for="sincronismo_${pokemonCount}">Valor de Sincronismo:</label>
+            <input type="text" id="sincronismo_${pokemonCount}" name="sincronismo">
+
+            <label for="gd_${pokemonCount}">GD (Grau de Dificuldade):</label>
+            <input type="text" id="gd_${pokemonCount}" name="gd">
+
+            <label for="pokemonCC_${pokemonCount}">C.C. (Capacidade de Canalização):</label>
+            <input type="text" id="pokemonCC_${pokemonCount}" name="pokemonCC">
+
+            <!-- Checkbox Condições -->
+            <h2>Condições</h2>
+            <div class="checkboxes">
+                <div><input type="checkbox" id="acurado_${pokemonCount}" name="condicoes"> Acurado</div>
+                <div><input type="checkbox" id="amaldiçoado_${pokemonCount}" name="condicoes"> Amaldiçoado</div>
+                <div><input type="checkbox" id="bloqueioRecuperacao_${pokemonCount}" name="condicoes"> Bloqueio de Recuperação</div>
+                <div><input type="checkbox" id="cegar_${pokemonCount}" name="condicoes"> Cegar</div>
+                <div><input type="checkbox" id="condenacao_${pokemonCount}" name="condicoes"> Condenação</div>
+                <div><input type="checkbox" id="confusao_${pokemonCount}" name="condicoes"> Confusão</div>
+                <div><input type="checkbox" id="congelado_${pokemonCount}" name="condicoes"> Congelado</div>
+                <div><input type="checkbox" id="danoContinuo_${pokemonCount}" name="condicoes"> Dano Contínuo</div>
+                <div><input type="checkbox" id="debilitado_${pokemonCount}" name="condicoes"> Debilitado</div>
+                <div><input type="checkbox" id="encorajado_${pokemonCount}" name="condicoes"> Encorajado</div>
+                <div><input type="checkbox" id="furioso_${pokemonCount}" name="condicoes"> Furioso</div>
+                <div><input type="checkbox" id="lento_${pokemonCount}" name="condicoes"> Lento</div>
+                <div><input type="checkbox" id="provocar_${pokemonCount}" name="condicoes"> Provocar</div>
+                <div><input type="checkbox" id="silenciado_${pokemonCount}" name="condicoes"> Silenciado</div>
+                <div><input type="checkbox" id="surdo_${pokemonCount}" name="condicoes"> Surdo</div>
+                <div><input type="checkbox" id="sono_${pokemonCount}" name="condicoes"> Sono</div>
+            </div>
+
+            <!-- Hisatsu -->
+            <h2>Hisatsu</h2>
+            <textarea id="hisatsu_${pokemonCount}" name="hisatsu" class="large"></textarea>
+
+            <!-- Habilidade Especial e Forma de Ação -->
+            <h2>Habilidade Especial</h2>
+            <textarea id="habilidades_${pokemonCount}" name="habilidades" class="small"></textarea>
+
+            <h2>Forma de Ação</h2>
+            <textarea id="acao_${pokemonCount}" name="acao" class="small"></textarea>
+        `;
+            pokemonContainer.appendChild(pokemonSection);
+        }
+
+        // Função para remover Pokémon
+        function removePokemon(id) {
+            const pokemonSection = document.querySelector(`.pokemon-section:nth-child(${id})`);
+            if (pokemonSection) {
+                pokemonContainer.removeChild(pokemonSection);
+            }
+        }
+
+        // Função para calcular automaticamente os atributos de Defesa e Aura
+        function calculateStats() {
+            const ofensiva = parseInt(document.getElementById('ofensiva').value) || 0;
+            const habilidade = parseInt(document.getElementById('habilidade').value) || 0;
+            const poder = parseInt(document.getElementById('poder').value) || 0;
+            const astucia = parseInt(document.getElementById('astucia').value) || 0;
+
+            const defesa = 5 + ofensiva + habilidade;
+            const aura = 5 + poder + astucia;
+
+            document.getElementById('defesa').value = defesa;
+            document.getElementById('aura').value = aura;
+        }
+
+        // Função para exportar os dados como um arquivo .txt
+        function exportData() {
+            const personagemForm = new FormData(document.getElementById('personagemForm'));
+            const personagemData = Object.fromEntries(personagemForm.entries());
+
+            const pokemons = [];
+            for (let i = 1; i <= pokemonCount; i++) {
+                const pokemonData = {
+                    nome: document.getElementById(`pokemonNome_${i}`).value,
+                    especie: document.getElementById(`especie_${i}`).value,
+                    escala: document.getElementById(`escala_${i}`).value,
+                    shinka: document.getElementById(`shinka_${i}`).value,
+                    cansaco: document.getElementById(`cansaco_${i}`).value,
+                    tipoGenero: document.getElementById(`tipoGenero_${i}`).value,
+                    sincronismo: document.getElementById(`sincronismo_${i}`).value,
+                    gd: document.getElementById(`gd_${i}`).value,
+                    cc: document.getElementById(`pokemonCC_${i}`).value,
+                    hisatsu: document.getElementById(`hisatsu_${i}`).value,
+                    habilidades: document.getElementById(`habilidades_${i}`).value,
+                    acao: document.getElementById(`acao_${i}`).value,
+                    condicoes: {
+                        acurado: document.getElementById(`acurado_${i}`).checked,
+                        amaldiçoado: document.getElementById(`amaldiçoado_${i}`).checked,
+                        bloqueioRecuperacao: document.getElementById(`bloqueioRecuperacao_${i}`).checked,
+                        cegar: document.getElementById(`cegar_${i}`).checked,
+                        condenacao: document.getElementById(`condenacao_${i}`).checked,
+                        confusao: document.getElementById(`confusao_${i}`).checked,
+                        congelado: document.getElementById(`congelado_${i}`).checked,
+                        danoContinuo: document.getElementById(`danoContinuo_${i}`).checked,
+                        debilitado: document.getElementById(`debilitado_${i}`).checked,
+                        encorajado: document.getElementById(`encorajado_${i}`).checked,
+                        furioso: document.getElementById(`furioso_${i}`).checked,
+                        lento: document.getElementById(`lento_${i}`).checked,
+                        provocar: document.getElementById(`provocar_${i}`).checked,
+                        silenciado: document.getElementById(`silenciado_${i}`).checked,
+                        surdo: document.getElementById(`surdo_${i}`).checked,
+                        sono: document.getElementById(`sono_${i}`).checked
+                    }
+                };
+                pokemons.push(pokemonData);
+            }
+
+            const data = {
+                personagem: personagemData,
+                pokemons: pokemons
+            };
+
+            // Formatação para texto simples
+            let textContent = 'Personagem:\n';
+            for (const [key, value] of Object.entries(personagemData)) {
+                textContent += `${key}: ${value}\n`;
+            }
+
+            textContent += '\nPokémons:\n';
+            pokemons.forEach((pokemon, index) => {
+                textContent += `\nPokémon ${index + 1}:\n`;
+                for (const [key, value] of Object.entries(pokemon)) {
+                    if (key === 'condicoes') {
+                        textContent += `Condições:\n`;
+                        for (const [condKey, condValue] of Object.entries(value)) {
+                            textContent += `  ${condKey}: ${condValue}\n`;
+                        }
+                    } else {
+                        textContent += `${key}: ${value}\n`;
+                    }
+                }
+            });
+
+            const blob = new Blob([textContent], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'dados_pokemon.txt';
+            link.click();
+        }
+
+    </script>
+
+</body>
+
+</html>
